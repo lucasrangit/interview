@@ -27,7 +27,7 @@ void fizzbuzz(long n)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 1)
+    if (argc < 2)
         return EINVAL;
 
     long n = strtol(argv[1], NULL, 10);
