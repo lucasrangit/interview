@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,9 +28,15 @@ void fizzbuzz(long n)
 int main(int argc, char *argv[])
 {
     if (argc < 1)
-        return 1;
+        return EINVAL;
 
     long n = strtol(argv[1], NULL, 10);
+    if (errno != 0)
+        return EINVAL;
+    if (n < 0)
+        return ERANGE;
+
     fizzbuzz(n);
+
     return 0;
 }
