@@ -3,7 +3,7 @@ CFLAGS=-Wall -Wextra -g
 all: default fizzbuzz reverse-bits array-size
 
 default:
-	mkdir bin
+	mkdir -p bin
 
 fizzbuzz: fizzbuzz.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I.
