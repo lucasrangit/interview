@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -g
 
 all: fizzbuzz reverse-bits array-size
 
