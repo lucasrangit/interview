@@ -10,9 +10,9 @@
  */
 void fizzbuzz(long n)
 {
+    char str[9] = ""; // enough for "FizzBuzz" + '\n'
     for (int i = 1; i <= n; ++i) {
-        char str[9] = "";
-
+        memset(str, 0, 1);
         if (i % 3 == 0)
             strcat(str, "Fizz");
         if (i % 5 == 0)
