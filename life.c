@@ -7,9 +7,9 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 struct state {
-    int old;
-    int new;
-};
+    char old:4;
+    char new:4;
+} __attribute__((packed));
 
 char *status = NULL;
 
