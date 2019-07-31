@@ -25,23 +25,23 @@ void signal_handler(int signal)
   signal_status = signal;
 }
 
-struct state *board_init()
+struct state *board_init(int columns, int lines)
 {
-    struct state *board = (struct state *)calloc(COLS * LINES, sizeof(struct state));
+    struct state *board = (struct state *)calloc(columns * lines, sizeof(struct state));
 
     // random live cells
     srand(time(NULL));
-    int cells = rand() % COLS*LINES;
+    int cells = rand() % columns*lines;
     for (int i = 0; i < cells; ++i) {
-        int x = rand() % COLS;
-        int y = rand() % LINES;
-        board[x * LINES + y].old = TRUE;
+        int x = rand() % columns;
+        int y = rand() % lines;
+        board[x * lines + y].old = TRUE;
     }
 
     return board;
 }
 
-int neighbors(struct state board[], int x, int y)
+int neighbors(struct state board[], int x, int y, int columns, int lines)
 {
     int live = 0;
 
@@ -49,22 +49,22 @@ int neighbors(struct state board[], int x, int y)
         for (int j = -1; j <= +1; ++j) {
             if ((i == 0) && (j == 0))
                 continue;
-            live += board[((x + i + COLS) % COLS) * LINES + ((y + j + LINES) % LINES)].old;
+            live += board[((x + i + columns) % columns) * lines + ((y + j + lines) % lines)].old;
         }
     }
 
     return live;
 }
 
-void evolve(struct state *board)
+void evolve(struct state *board, int columns, int lines)
 {
-    for (int i = 0; i < COLS; ++i) {
-        for (int j = 0; j < LINES; ++j) {
-            int n = neighbors(board, i, j);
+    for (int i = 0; i < columns; ++i) {
+        for (int j = 0; j < lines; ++j) {
+            int n = neighbors(board, i, j, columns, lines);
             int new = FALSE;
 
             // live
-            if (board[i * LINES + j].old == TRUE) {
+            if (board[i * lines + j].old == TRUE) {
                 // live cell < two live neighbors dies (underpopulation or exposure)
                 if (n < 2)
                     new = FALSE;
@@ -76,33 +76,44 @@ void evolve(struct state *board)
                     new = FALSE;
             }
             // dead
-            else if (board[i * LINES + j].old == FALSE) {
+            else if (board[i * lines + j].old == FALSE) {
                 // dead cell == three live neighbors come to life
                 if (n == 3)
                     new = TRUE;
             }
 
-            board[i * LINES + j].new = new;
+            board[i * lines + j].new = new;
         }
     }
 }
 
-void save(struct state *board)
+void save(struct state *board, int columns, int lines)
 {
-    for (int i = 0; i < COLS; ++i)
-        for (int j = 0; j < LINES; ++j)
-            board[i * LINES + j].old = board[i * LINES + j].new;
+    for (int i = 0; i < columns; ++i)
+        for (int j = 0; j < lines; ++j)
+            board[i * lines + j].old = board[i * lines + j].new;
 }
 
-void display(struct state *board)
+void display(struct state *board, int columns, int lines)
 {
     wclear(stdscr);
-    for (int i = 0; i < COLS; ++i)
-        for (int j = 0; j < LINES; ++j)
-            if (board[i * LINES + j].new == TRUE) {
-                wchar_t wstr[] = { WHITE_1x1, L'\0' };
-                mvaddwstr(j, i, wstr);
+    for (int i = 0; i < columns; ++i) {
+        for (int j = 0; j < lines/2; ++j) {
+            wchar_t wstr[] = { 0, L'\0' };
+            int top = board[i * lines + (j * 2)].new;
+            int bottom = board[i * lines + (j * 2 + 1)].new;
+            if ((top == TRUE) && (bottom == TRUE)) {
+                wstr[0] = WHITE_1x1;
+            } else if ((top == TRUE) && (bottom == FALSE))  {
+                wstr[0] = WHITE_BLACK_1x1;
+            } else if ((top == FALSE) && (bottom == TRUE))  {
+                wstr[0] = BLACK_WHITE_1x1;
+            } else {
+                wstr[0] = BLACK_1x1;
             }
+            mvaddwstr(j, i, wstr);
+        }
+    }
     mvprintw(LINES-1, 0, status);
     wrefresh(stdscr);
 }
@@ -117,26 +128,31 @@ int main()
     timeout(100);
     keypad(stdscr, TRUE);
 
-    status = realloc(status, COLS);
-    sprintf(status, "COLS %d LINES %d", COLS, LINES);
+    int columns = COLS;
+    int lines = LINES*2;
 
-    struct state *board = board_init(NULL);
+    status = realloc(status, columns);
+    sprintf(status, "COLS %d LINES %d", columns, lines);
+
+    struct state *board = board_init(columns, lines);
 
     while (signal_status != SIGINT) {
         int ch = wgetch(stdscr); // ERR on timeout
 
         if (ch == KEY_RESIZE) {
             free(board);
-            board = board_init();
-            status = realloc(status, COLS);
-            sprintf(status, "COLS %d LINES %d", COLS, LINES);
+            columns = COLS;
+            lines = LINES*2;
+            board = board_init(columns, lines);
+            status = realloc(status, columns);
+            sprintf(status, "COLS %d LINES %d", columns, lines);
         }
 
-        evolve(board);
+        evolve(board, columns, lines);
 
-        save(board);
+        save(board, columns, lines);
 
-        display(board);
+        display(board, columns, lines);
     }
 
     endwin();
