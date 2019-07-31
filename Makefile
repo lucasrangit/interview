@@ -15,7 +15,7 @@ array-size: array-size.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I.
 
 life: life.c
-	gcc $(CFLAGS) -o bin/$@ $^ -I. -lncurses
+	gcc $(CFLAGS) -o bin/$@ $^ -I. -lncursesw
 
 .PHONY: clean
 clean:

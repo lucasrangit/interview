@@ -1,10 +1,15 @@
-#include <curses.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
+#define _XOPEN_SOURCE_EXTENDED
+#include <ncursesw/curses.h>
+
+#define BLACK_1x1 L' '
+#define WHITE_BLACK_1x1 L'\u2580'
+#define BLACK_WHITE_1x1 L'\u2584'
+#define WHITE_1x1 L'\u2588'
 
 struct state {
     char old:4;
@@ -94,8 +99,10 @@ void display(struct state *board)
     wclear(stdscr);
     for (int i = 0; i < COLS; ++i)
         for (int j = 0; j < LINES; ++j)
-            if (board[i * LINES + j].new == TRUE)
-                mvwaddch(stdscr, j, i, ACS_DIAMOND); // ' '|A_REVERSE);
+            if (board[i * LINES + j].new == TRUE) {
+                wchar_t wstr[] = { WHITE_1x1, L'\0' };
+                mvaddwstr(j, i, wstr);
+            }
     mvprintw(LINES-1, 0, status);
     wrefresh(stdscr);
 }
@@ -104,6 +111,7 @@ int main()
 {
     signal(SIGINT, signal_handler);
 
+    setlocale(LC_CTYPE, "");
     initscr();
     cbreak();
     timeout(100);
