@@ -1,9 +1,9 @@
 CFLAGS=-Wall -Wextra -g
 
-all: default fizzbuzz reverse-bits array-size life
+.PHONY: all
+all: fizzbuzz reverse-bits array-size life
 
-default:
-	@mkdir -p bin
+$(shell mkdir -p bin)
 
 fizzbuzz: fizzbuzz.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I.
@@ -18,6 +18,5 @@ life: life.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I. -lncurses
 
 .PHONY: clean
-
 clean:
 	rm -rf bin
