@@ -135,7 +135,7 @@ int main()
     int lines = LINES*2;
 
     status = realloc(status, columns);
-    sprintf(status, "COLS %d LINES %d", columns, lines);
+    sprintf(status, "BACKSPACE clear SPACE pause CLICK toggle top half DOUBLECLICK toggle bottom half");
 
     struct state *board = board_init(columns, lines);
 
