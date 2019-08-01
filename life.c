@@ -129,6 +129,7 @@ int main()
     timeout(100);
     keypad(stdscr, TRUE);
     mousemask(BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED, NULL);
+    curs_set(0);
 
     int columns = COLS;
     int lines = LINES*2;
