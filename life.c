@@ -150,6 +150,10 @@ int main()
             status = realloc(status, columns);
             sprintf(status, "COLS %d LINES %d", columns, lines);
             paused = FALSE;
+        } else if (ch == KEY_BACKSPACE) {
+            for (int i = 0; i < columns; ++i)
+                for (int j = 0; j < lines; ++j)
+                    board[i * lines + j].old = board[i * lines + j].new = FALSE;
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
                 sprintf(status, "MOUSE %d %d", event.x, event.y);
