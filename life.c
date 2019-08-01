@@ -120,6 +120,7 @@ void display(struct state *board, int columns, int lines)
 
 int main()
 {
+    bool paused = FALSE;
     signal(SIGINT, signal_handler);
 
     setlocale(LC_CTYPE, "");
@@ -127,6 +128,7 @@ int main()
     cbreak();
     timeout(100);
     keypad(stdscr, TRUE);
+    mousemask(BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED, NULL);
 
     int columns = COLS;
     int lines = LINES*2;
@@ -138,6 +140,7 @@ int main()
 
     while (signal_status != SIGINT) {
         int ch = wgetch(stdscr); // ERR on timeout
+        MEVENT event;
 
         if (ch == KEY_RESIZE) {
             free(board);
@@ -146,13 +149,26 @@ int main()
             board = board_init(columns, lines);
             status = realloc(status, columns);
             sprintf(status, "COLS %d LINES %d", columns, lines);
+            paused = FALSE;
+        } else if (ch == KEY_MOUSE) {
+            if (getmouse(&event) == OK) {
+                sprintf(status, "MOUSE %d %d", event.x, event.y);
+                if (event.bstate & BUTTON1_CLICKED)
+                    board[event.x * lines + (event.y * 2)].new = !board[event.x * lines + (event.y * 2)].new;
+                else if (event.bstate & BUTTON1_DOUBLE_CLICKED)
+                    board[event.x * lines + (event.y * 2 + 1)].new = !board[event.x * lines + (event.y * 2 + 1)].new;
+            }
+        } else if (ch == ' ') {
+            paused = !paused;
         }
 
-        evolve(board, columns, lines);
-
-        save(board, columns, lines);
+        if (!paused) {
+            evolve(board, columns, lines);
+        }
 
         display(board, columns, lines);
+
+        save(board, columns, lines);
     }
 
     endwin();
