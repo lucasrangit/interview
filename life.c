@@ -12,8 +12,8 @@
 #define WHITE_1x1 L'\u2588'
 
 struct state {
-    char old:4;
-    char new:4;
+    bool old:1;
+    bool new:1;
 } __attribute__((packed));
 
 char *status = NULL;
@@ -35,7 +35,7 @@ struct state *board_init(int columns, int lines)
     for (int i = 0; i < cells; ++i) {
         int x = rand() % columns;
         int y = rand() % lines;
-        board[x * lines + y].old = TRUE;
+        board[x * lines + y].old = true;
     }
 
     return board;
@@ -61,25 +61,25 @@ void evolve(struct state *board, int columns, int lines)
     for (int i = 0; i < columns; ++i) {
         for (int j = 0; j < lines; ++j) {
             int n = neighbors(board, i, j, columns, lines);
-            int new = FALSE;
+            int new = false;
 
             // live
-            if (board[i * lines + j].old == TRUE) {
+            if (board[i * lines + j].old == true) {
                 // live cell < two live neighbors dies (underpopulation or exposure)
                 if (n < 2)
-                    new = FALSE;
+                    new = false;
                 // live cell == two or three live neighbors lives
                 else if ((n == 2 || n == 3))
-                    new = TRUE;
+                    new = true;
                 // live cell > three live neighbors dies (overpopulation or overcrowding)
                 else if (n > 3)
-                    new = FALSE;
+                    new = false;
             }
             // dead
-            else if (board[i * lines + j].old == FALSE) {
+            else if (board[i * lines + j].old == false) {
                 // dead cell == three live neighbors come to life
                 if (n == 3)
-                    new = TRUE;
+                    new = true;
             }
 
             board[i * lines + j].new = new;
@@ -102,11 +102,11 @@ void display(struct state *board, int columns, int lines)
             wchar_t wstr[] = { 0, L'\0' };
             int top = board[i * lines + (j * 2)].new;
             int bottom = board[i * lines + (j * 2 + 1)].new;
-            if ((top == TRUE) && (bottom == TRUE)) {
+            if ((top == true) && (bottom == true)) {
                 wstr[0] = WHITE_1x1;
-            } else if ((top == TRUE) && (bottom == FALSE))  {
+            } else if ((top == true) && (bottom == false))  {
                 wstr[0] = WHITE_BLACK_1x1;
-            } else if ((top == FALSE) && (bottom == TRUE))  {
+            } else if ((top == false) && (bottom == true))  {
                 wstr[0] = BLACK_WHITE_1x1;
             } else {
                 wstr[0] = BLACK_1x1;
@@ -120,14 +120,14 @@ void display(struct state *board, int columns, int lines)
 
 int main()
 {
-    bool paused = FALSE;
+    bool paused = false;
     signal(SIGINT, signal_handler);
 
     setlocale(LC_CTYPE, "");
     initscr();
     cbreak();
     timeout(100);
-    keypad(stdscr, TRUE);
+    keypad(stdscr, true);
     mousemask(BUTTON1_CLICKED | BUTTON1_DOUBLE_CLICKED, NULL);
     curs_set(0);
 
@@ -135,7 +135,7 @@ int main()
     int lines = LINES*2;
 
     status = realloc(status, columns);
-    sprintf(status, "BACKSPACE clear SPACE pause CLICK toggle top half DOUBLECLICK toggle bottom half");
+    sprintf(status, "BACKSPACE clear SPACE pause CLICK toggle top cell DOUBLECLICK toggle bottom cell RESIZE reset");
 
     struct state *board = board_init(columns, lines);
 
@@ -150,11 +150,11 @@ int main()
             board = board_init(columns, lines);
             status = realloc(status, columns);
             sprintf(status, "COLS %d LINES %d", columns, lines);
-            paused = FALSE;
+            paused = false;
         } else if (ch == KEY_BACKSPACE) {
             for (int i = 0; i < columns; ++i)
                 for (int j = 0; j < lines; ++j)
-                    board[i * lines + j].old = board[i * lines + j].new = FALSE;
+                    board[i * lines + j].old = board[i * lines + j].new = false;
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
                 sprintf(status, "MOUSE %d %d", event.x, event.y);
