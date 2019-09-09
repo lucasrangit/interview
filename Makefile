@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Wextra -g
 
 .PHONY: all
-all: fizzbuzz reverse-bits array-size life
+all: fizzbuzz reverse-bits array-size life memcpy
 
 $(shell mkdir -p bin)
 
@@ -16,6 +16,9 @@ array-size: array-size.c
 
 life: life.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I. -lncursesw
+
+memcpy: memcpy.c
+	gcc $(CFLAGS) -o bin/$@ $^ -I.
 
 .PHONY: clean
 clean:
