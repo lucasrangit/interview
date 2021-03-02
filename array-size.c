@@ -5,7 +5,7 @@
 
 static int a[] = {1, 2, 3, 4};
 
-int main(int argc, char *argv[])
+int main()
 {
     int *b = (int *)calloc(4, sizeof(int));
 
