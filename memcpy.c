@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 void *memcpy_duff(void * __dst, const void * __src, size_t count)
 {
     uint8_t * dst = __dst;
@@ -27,12 +29,12 @@ void *memcpy_duff(void * __dst, const void * __src, size_t count)
 
     return __dst;
 }
+#pragma GCC diagnostic pop
 
 void *memcpy_my(void * __dst, const void * __src, size_t count)
 {
     uint8_t *dst = --__dst;
     const uint8_t *src = --__src;
-    ssize_t n = count;
 
     while (count--) // leverage branch-not-equal instructions (checks for zero without immediate)
         *++dst = *++src; // leverage pre-increment pointer instruction (e.g. PowerPC)
