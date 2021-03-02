@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Wextra -g
 
 .PHONY: all
-all: fizzbuzz reverse-bits array-size life memcpy power-of-2
+all: fizzbuzz reverse-bits array-size life memcpy power-of-2 sizeof-struct
 
 $(shell mkdir -p bin)
 
@@ -22,6 +22,9 @@ memcpy: memcpy.c
 
 power-of-2: power-of-2.c
 	gcc $(CFLAGS) -o bin/$@ $^ -I.
+
+sizeof-struct: sizeof-struct.c
+	gcc $(CLAGS) -o bin/$@ $^ -I.
 
 .PHONY: clean
 clean:
